@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jay Sevalal Industries</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body{
+font-family:sans-serif;
+background:linear-gradient(-45deg,#0f2027,#2c5364,#1c92d2,#f2fcfe);
+background-size:400% 400%;
+animation:bg 10s infinite alternate;
+color:white;
+}
+
+@keyframes bg{
+0%{background-position:0% 50%;}
+100%{background-position:100% 50%;}
+}
+
+header{
+text-align:center;
+padding:20px;
+font-size:22px;
+font-weight:bold;
+}
+
+/* NAV */
+nav{
+text-align:center;
+margin:10px;
+}
+nav button{
+padding:10px;
+margin:5px;
+border:none;
+border-radius:8px;
+background:#0077b6;
+color:white;
+}
+
+/* PAGE */
+.page{
+display:none;
+padding:20px;
+}
+
+.active{
+display:block;
+}
+
+/* CARD */
+.card{
+background:rgba(255,255,255,0.1);
+padding:20px;
+border-radius:15px;
+backdrop-filter:blur(10px);
+}
+
+/* INPUT */
+input{
+width:100%;
+padding:10px;
+margin:10px 0;
+border:none;
+border-radius:8px;
+}
+
+/* BUTTON */
+.btn{
+width:100%;
+padding:12px;
+margin-top:10px;
+border:none;
+border-radius:8px;
+color:white;
+cursor:pointer;
+}
+
+.call{background:green;}
+.whatsapp{background:#25D366;}
+.order{background:#0077b6;}
+.pay{background:#ff9800;}
+
+#qr{display:none;margin-top:10px;}
+</style>
+</head>
+
+<body>
+
+<header>
+Jay Sevalal Industries Pvt. Ltd.<br>
+Owner: Avinash Rathod
+</header>
+
+<nav>
+<button onclick="showPage('home')">Home</button>
+<button onclick="showPage('order')">Order</button>
+<button onclick="showPage('payment')">Payment</button>
+<button onclick="showPage('contact')">Contact</button>
+</nav>
+
+<!-- HOME -->
+<div id="home" class="page active">
+<div class="card">
+<h3>Welcome</h3>
+<p>Best Quality Products Available</p>
+</div>
+</div>
+
+<!-- ORDER -->
+<div id="order" class="page">
+<div class="card">
+
+<h3>Place Order</h3>
+
+<input id="name" placeholder="Name">
+<input id="mobile" placeholder="Mobile">
+<input id="qty" placeholder="Quantity">
+
+<label><input type="radio" name="pay" value="COD" checked> COD</label><br>
+<label><input type="radio" name="pay" value="UPI"> UPI</label>
+
+<img src="qr.jpg" width="200" id="qr">
+
+<button class="btn pay" onclick="payNow()">💳 Pay Now</button>
+<button class="btn order" onclick="placeOrder()">🚀 Place Order</button>
+
+</div>
+</div>
+
+<!-- PAYMENT -->
+<div id="payment" class="page">
+<div class="card">
+
+<h3>UPI Payment</h3>
+
+<p>Scan & Pay</p>
+
+<img src="qr.jpg" width="200">
+
+<button class="btn pay" onclick="payNow()">💳 Pay Now</button>
+
+</div>
+</div>
+
+<!-- CONTACT -->
+<div id="contact" class="page">
+<div class="card">
+
+<h3>Contact</h3>
+
+<a href="tel:+917887545881">
+<button class="btn call">Call</button>
+</a>
+
+<a href="https://wa.me/917887545881">
+<button class="btn whatsapp">WhatsApp</button>
+</a>
+
+<p>+91 7887545881 / 8261885621 / 9130425874</p>
+
+</div>
+</div>
+
+<audio id="sound" src="https://www.soundjay.com/buttons/sounds/button-3.mp3"></audio>
+
+<script>
+
+// PAGE SWITCH
+function showPage(id){
+document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+document.getElementById(id).classList.add("active");
+}
+
+// NOTIFICATION PERMISSION
+if("Notification" in window){
+Notification.requestPermission();
+}
+
+// SOUND
+function notify(msg){
+document.getElementById("sound").play();
+alert(msg);
+
+if(Notification.permission==="granted"){
+new Notification("Alert",{body:msg});
+}
+}
+
+// QR SHOW
+document.querySelectorAll("input[name='pay']").forEach(r=>{
+r.addEventListener("change",()=>{
+let m=document.querySelector("input[name='pay']:checked").value;
+document.getElementById("qr").style.display=(m==="UPI")?"block":"none";
+});
+});
+
+// UPI
+function payNow(){
+window.location.href="upi://pay?pa=7887545881@ibl&pn=JaySevalal&cu=INR";
+}
+
+// ORDER
+function placeOrder(){
+
+let name=document.getElementById("name").value;
+let mobile=document.getElementById("mobile").value;
+let qty=document.getElementById("qty").value;
+let pay=document.querySelector("input[name='pay']:checked").value;
+
+if(name==""||mobile==""||qty==""){
+alert("Fill all details");
+return;
+}
+
+let msg="New Order:%0AName:"+name+
+"%0AMobile:"+mobile+
+"%0AQty:"+qty+
+"%0APayment:"+pay;
+
+let numbers=[
+"917887545881",
+"918261885621",
+"919130425874"
+];
+
+let random=numbers[Math.floor(Math.random()*numbers.length)];
+
+window.open("https://wa.me/"+random+"?text="+msg);
+
+notify("✅ Order Sent Successfully!");
+
+}
+
+</script>
+
+</body>
+</html>

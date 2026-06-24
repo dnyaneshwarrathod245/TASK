@@ -1,0 +1,3178 @@
+DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskSpire — Premium Productivity Todo App</title>
+    <!-- Google Fonts: Outfit & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="dark-mode">
+    <!-- Background elements for visual depth -->
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+    <canvas id="confetti-canvas"></canvas>
+    <div class="app-container">
+        <main class="todo-card">
+            <!-- Header Section -->
+            <header class="app-header">
+                <div class="header-main">
+                    <div class="logo">
+                        <div class="logo-icon">
+                            <i class="fa-solid fa-square-check"></i>
+                        </div>
+                        <div class="logo-text">
+                            <h1>TaskSpire</h1>
+                            <p>Elevate your productivity</p>
+                        </div>
+                    </div>
+                    <button id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle Theme">
+                        <i class="fa-solid fa-moon moon-icon"></i>
+                        <i class="fa-solid fa-sun sun-icon"></i>
+                    </button>
+                </div>
+                <!-- Progress Tracker -->
+                <div class="progress-section">
+                    <div class="progress-info">
+                        <span class="progress-title">Your Progress</span>
+                        <span id="progress-percent" class="progress-percent">0%</span>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div id="progress-fill" class="progress-bar-fill" style="width: 0%"></div>
+                    </div>
+                    <div class="stats-counter">
+                        <span id="tasks-completed">0</span> of <span id="tasks-total">0</span> tasks completed
+                    </div>
+                </div>
+            </header>
+            <!-- Task Form Creator -->
+            <section class="task-form-section">
+                <form id="todo-form" class="todo-form">
+                    <div class="input-group">
+                        <div class="input-wrapper">
+                            <i class="fa-regular fa-circle-dot input-decor"></i>
+                            <input type="text" id="task-input" required autocomplete="off" placeholder="What is your next focus?">
+                        </div>
+                        <button type="submit" class="add-task-btn" aria-label="Add Task">
+                            <span class="btn-text-desktop">Add Goal</span>
+                            <i class="fa-solid fa-plus"></i>
+                        </button>
+                    </div>
+                    <!-- Meta Options -->
+                    <div class="form-meta-options">
+                        <!-- Priority Picker -->
+                        <div class="meta-item">
+                            <label for="task-priority"><i class="fa-solid fa-circle-exclamation"></i> Priority</label>
+                            <div class="custom-select-wrapper">
+                                <select id="task-priority">
+                                    <option value="low">Low</option>
+                                    <option value="medium" selected>Medium</option>
+                                    <option value="high">High</option>
+                                </select>
+                            </div>
+                        </div>
+                        <!-- Category Picker -->
+                        <div class="meta-item">
+                            <label for="task-category"><i class="fa-solid fa-tags"></i> Category</label>
+                            <div class="custom-select-wrapper">
+                                <select id="task-category">
+                                    <option value="personal" selected>Personal</option>
+                                    <option value="work">Work</option>
+                                    <option value="study">Study</option>
+                                    <option value="fitness">Fitness</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        <!-- Due Date Picker -->
+                        <div class="meta-item">
+                            <label for="task-date"><i class="fa-regular fa-calendar-days"></i> Due Date</label>
+                            <input type="date" id="task-date">
+                        </div>
+                    </div>
+                </form>
+            </section>
+            <!-- Task Controls Panel -->
+            <section class="controls-panel">
+                <!-- Search bar -->
+                <div class="search-wrapper">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <input type="text" id="search-input" placeholder="Search tasks...">
+                </div>
+                <!-- Filters & Sorting -->
+                <div class="filters-and-sort">
+                    <div class="filter-tabs">
+                        <button class="filter-tab active" data-filter="all">All</button>
+                        <button class="filter-tab" data-filter="active">Active</button>
+                        <button class="filter-tab" data-filter="completed">Completed</button>
+                    </div>
+                    <div class="sort-selector">
+                        <label for="sort-tasks"><i class="fa-solid fa-arrow-down-wide-narrow"></i> Sort</label>
+                        <select id="sort-tasks">
+                            <option value="created">Created</option>
+                            <option value="priority">Priority</option>
+                            <option value="dueDate">Due Date</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+            <!-- Todo Items List -->
+            <section class="todo-list-section">
+                <ul id="todo-list" class="todo-list">
+                    <!-- Tasks will be injected dynamically -->
+                </ul>
+                <!-- Empty State -->
+                <div id="empty-state" class="empty-state">
+                    <div class="empty-icon">
+                        <i class="fa-solid fa-clipboard-check"></i>
+                    </div>
+                    <h3>No tasks found</h3>
+                    <p>Add a new focus above or adjust your search filters to start executing your goals.</p>
+                </div>
+            </section>
+            <!-- Footer Controls -->
+            <footer class="todo-footer">
+                <div class="back-to-portfolio">
+                    <a href="../index.html"><i class="fa-solid fa-arrow-left-long"></i> Back to Portfolio</a>
+                </div>
+                <button id="clear-completed-btn" class="clear-btn">
+                    <i class="fa-solid fa-trash-can"></i> Clear Completed
+                </button>
+            </footer>
+        </main>
+    </div>
+    <!-- Toast Notifications Container -->
+    <div id="toast-container" class="toast-container"></div>
+    <script src="app.js"></script>
+</body>
+</html>
+
+     Fonts 
+    --font-primary: 'Inter', sans-serif;
+    --font-header: 'Outfit', sans-serif;
+     Common Transitions 
+    --transition-fast: 0.2s ease;
+    --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    /* Shadow Palette */
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 8px 30px rgba(0, 0, 0, 0.12);
+    --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.2);
+    --shadow-glow: 0 0 20px rgba(139, 92, 246, 0.35);
+    /* Border Radius */
+    --radius-sm: 8px;
+    --radius-md: 14px;
+    --radius-lg: 24px;
+    --radius-full: 9999px;
+    /* Category HSL Colors (Light and Dark Harmonized) */
+    --personal-color: hsl(271, 91%, 65%);
+    --work-color: hsl(217, 91%, 60%);
+    --study-color: hsl(142, 71%, 45%);
+    --fitness-color: hsl(35, 92%, 55%);
+    --other-color: hsl(200, 15%, 55%);
+     Priority Colors */
+    --priority-low: hsl(150, 60%, 45%);
+    --priority-medium: hsl(38, 92%, 50%);
+    --priority-high: hsl(0, 84%, 60%);
+}
+
+.dark-mode {
+    --bg-main: #0a0e1a;
+    --card-bg: rgba(16, 23, 42, 0.7);
+    --card-border: rgba(255, 255, 255, 0.08);
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --text-details: #64748b;
+    --input-bg: rgba(30, 41, 59, 0.6);
+    --input-border: rgba(255, 255, 255, 0.06);
+    --input-focus: rgba(139, 92, 246, 0.4);
+    --btn-secondary: rgba(51, 65, 85, 0.5);
+    --btn-secondary-hover: rgba(51, 65, 85, 0.8);
+    --list-item-bg: rgba(30, 41, 59, 0.4);
+    --list-item-hover: rgba(30, 41, 59, 0.7);
+    --scrollbar-track: #0f172a;
+    --scrollbar-thumb: #334155;
+    
+    /* Gradients */
+    --accent-gradient: linear-gradient(135deg, #8b5cf6 0%, #d946ef 50%, #ec4899 100%);
+    --accent-glow: rgba(139, 92, 246, 0.25);
+    --glow-1: rgba(139, 92, 246, 0.15);
+    --glow-2: rgba(236, 72, 153, 0.1);
+    
+    color-scheme: dark;
+}
+/* --- Light Mode Configuration --- */
+body.light-mode {
+    --bg-main: #f3f4f6;
+    --card-bg: rgba(255, 255, 255, 0.75);
+    --card-border: rgba(0, 0, 0, 0.06);
+    --text-main: #0f172a;
+    --text-muted: #475569;
+    --text-details: #64748b;
+    --input-bg: rgba(243, 244, 246, 0.8);
+    --input-border: rgba(0, 0, 0, 0.08);
+    --input-focus: rgba(99, 102, 241, 0.3);
+    --btn-secondary: rgba(229, 231, 235, 0.8);
+    --btn-secondary-hover: rgba(209, 213, 219, 0.9);
+    --list-item-bg: rgba(255, 255, 255, 0.9);
+    --list-item-hover: rgba(248, 250, 252, 1);
+    --scrollbar-track: #f1f5f9;
+    --scrollbar-thumb: #cbd5e1;
+    
+    /* Gradients */
+    --accent-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
+    --accent-glow: rgba(99, 102, 241, 0.15);
+    --glow-1: rgba(99, 102, 241, 0.08);
+    --glow-2: rgba(236, 72, 153, 0.05);
+    color-scheme: light;
+}
+/* ==========================================================================
+   Reset and Core Layout
+   ========================================================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+body {
+    font-family: var(--font-primary);
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    overflow-x: hidden;
+    padding: 20px;
+    transition: background-color var(--transition-slow), color var(--transition-slow);
+}
+/* Smooth custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+}
+::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: var(--radius-full);
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #475569;
+}
+/* Background Glowing Ambient Orbs */
+.bg-glow {
+    position: absolute;
+    border-radius: var(--radius-full);
+    filter: blur(120px);
+    z-index: -2;
+    pointer-events: none;
+    transition: all var(--transition-slow);
+}
+.bg-glow-1 {
+    width: 500px;
+    height: 500px;
+    background: var(--glow-1);
+    top: -100px;
+    left: -100px;
+}
+.bg-glow-2 {
+    width: 450px;
+    height: 450px;
+    background: var(--glow-2);
+    bottom: -100px;
+    right: -100px;
+}
+/* Canvas overlay for confetti animations */
+#confetti-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 100;
+}
+/* ==========================================================================
+   Container & Premium Card Layout
+   ========================================================================== */
+.app-container {
+    width: 100%;
+    max-width: 680px;
+    z-index: 1;
+    perspective: 1000px;
+    margin: 40px 0;
+}
+.todo-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    padding: 35px;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    transform: translateY(20px);
+    animation: cardEntrance 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes cardEntrance {
+    to {
+        transform: translateY(0);
+    }
+}
+/* ==========================================================================
+   App Header & Stats
+   ========================================================================== */
+.app-header {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+.header-main {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+.logo-icon {
+    font-size: 2.2rem;
+    background: var(--accent-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: flex;
+    align-items: center;
+    filter: drop-shadow(0 2px 8px var(--accent-glow));
+}
+.logo-text h1 {
+    font-family: var(--font-header);
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    line-height: 1.1;
+}
+.logo-text p {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 400;
+    margin-top: 2px;
+}
+.theme-toggle-btn {
+    background: var(--btn-secondary);
+    border: 1px solid var(--card-border);
+    color: var(--text-main);
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.2rem;
+    transition: all var(--transition-fast);
+}
+.theme-toggle-btn:hover {
+    background: var(--btn-secondary-hover);
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+.theme-toggle-btn:active {
+    transform: scale(0.95);
+}
+/* Sun/Moon Display Triggers */
+.dark-mode .sun-icon { display: none; }
+.dark-mode .moon-icon { display: block; }
+body.light-mode .sun-icon { display: block; }
+body.light-mode .moon-icon { display: none; }
+/* Progress Bar Tracker */
+.progress-section {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-md);
+    padding: 15px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.progress-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+.progress-title {
+    color: var(--text-muted);
+}
+.progress-percent {
+    background: var(--accent-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-family: var(--font-header);
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+.progress-bar-container {
+    width: 100%;
+    height: 8px;
+    background: var(--input-bg);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+    position: relative;
+}
+.progress-bar-fill {
+    height: 100%;
+    background: var(--accent-gradient);
+    border-radius: var(--radius-full);
+    transition: width var(--transition-slow);
+    box-shadow: var(--shadow-glow);
+}
+.stats-counter {
+    font-size: 0.8rem;
+    color: var(--text-details);
+    text-align: right;
+    font-weight: 500;
+}
+/* ==========================================================================
+   Task Input Form Creator
+   ========================================================================== */
+.task-form-section {
+    width: 100%;
+}
+.todo-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+.input-group {
+    display: flex;
+    gap: 12px;
+}
+.input-wrapper {
+    position: relative;
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+}
+.input-decor {
+    position: absolute;
+    left: 16px;
+    color: var(--text-details);
+    font-size: 1rem;
+    pointer-events: none;
+    transition: color var(--transition-fast);
+}
+#task-input {
+    width: 100%;
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    color: var(--text-main);
+    padding: 16px 16px 16px 45px;
+    border-radius: var(--radius-md);
+    font-family: var(--font-primary);
+    font-size: 1rem;
+    font-weight: 500;
+    transition: all var(--transition-fast);
+}
+#task-input::placeholder {
+    color: var(--text-details);
+    font-weight: 400;
+}
+#task-input:focus {
+    outline: none;
+    border-color: var(--input-focus);
+    box-shadow: 0 0 0 3px var(--input-focus);
+    background: var(--card-bg);
+}
+#task-input:focus + .input-decor {
+    color: #a855f7;
+}
+.add-task-btn {
+    background: var(--accent-gradient);
+    color: white;
+    border: none;
+    padding: 0 24px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-weight: 600;
+    font-family: var(--font-header);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all var(--transition-fast);
+    box-shadow: 0 4px 15px var(--accent-glow);
+}
+.add-task-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px var(--accent-glow);
+    filter: brightness(1.1);
+}
+.add-task-btn:active {
+    transform: translateY(0);
+}
+.add-task-btn i {
+    font-size: 1.1rem;
+}
+/* Meta Data Row: Priority, Category, Date */
+.form-meta-options {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    background: rgba(255, 255, 255, 0.01);
+    padding: 4px;
+}
+.meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.meta-item label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.meta-item label i {
+    color: var(--text-details);
+}
+.custom-select-wrapper select,
+.meta-item input[type="date"] {
+    width: 100%;
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    color: var(--text-main);
+    padding: 10px 12px;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-primary);
+    font-size: 0.85rem;
+    font-weight: 500;
+    outline: none;
+    transition: all var(--transition-fast);
+    cursor: pointer;
+}
+.custom-select-wrapper select:focus,
+.meta-item input[type="date"]:focus {
+    border-color: var(--input-focus);
+    box-shadow: 0 0 0 2px var(--input-focus);
+}
+/* Custom design calendar icon replacement */
+.meta-item input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(0.5);
+    cursor: pointer;
+}
+/* ==========================================================================
+   Filters & Search Controls Panel
+   ========================================================================== */
+.controls-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    border-top: 1px solid var(--card-border);
+    padding-top: 25px;
+}
+.search-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.search-icon {
+    position: absolute;
+    left: 16px;
+    color: var(--text-details);
+    pointer-events: none;
+}
+#search-input {
+    width: 100%;
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    color: var(--text-main);
+    padding: 12px 16px 12px 42px;
+    border-radius: var(--radius-md);
+    font-size: 0.9rem;
+    outline: none;
+    transition: all var(--transition-fast);
+}
+#search-input:focus {
+    border-color: var(--input-focus);
+    background: var(--card-bg);
+    box-shadow: 0 0 0 2px var(--input-focus);
+}
+.filters-and-sort {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+.filter-tabs {
+    display: flex;
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    padding: 4px;
+    border-radius: var(--radius-md);
+    gap: 2px;
+}
+.filter-tab {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    padding: 8px 16px;
+    border-radius: calc(var(--radius-md) - 4px);
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all var(--transition-fast);
+}
+.filter-tab:hover {
+    color: var(--text-main);
+}
+.filter-tab.active {
+    background: var(--card-bg);
+    color: var(--text-main);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+.sort-selector {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.sort-selector label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    white-space: nowrap;
+}
+.sort-selector select {
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    color: var(--text-main);
+    padding: 8px 14px;
+    border-radius: var(--radius-md);
+    font-size: 0.85rem;
+    font-weight: 500;
+    outline: none;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+.sort-selector select:focus {
+    border-color: var(--input-focus);
+}
+/* ==========================================================================
+   Todo List Area & Items
+   ========================================================================== */
+.todo-list-section {
+    min-height: 200px;
+    position: relative;
+}
+.todo-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 0;
+}
+.todo-item {
+    background: var(--list-item-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-md);
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    transition: all var(--transition-normal);
+    position: relative;
+    overflow: hidden;
+    animation: taskSlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes taskSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+.todo-item.deleting {
+    animation: taskSlideOut 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes taskSlideOut {
+    to {
+        opacity: 0;
+        transform: translateX(40px);
+        height: 0;
+        padding-top: 0;
+        padding-bottom: 0;
+        margin-bottom: -12px;
+        border: none;
+    }
+}
+.todo-item:hover {
+    background: var(--list-item-hover);
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: var(--shadow-sm);
+    transform: translateY(-1px);
+}
+/* Left Group (Checkbox + Texts) */
+.todo-item-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-grow: 1;
+    min-width: 0; /* Ensures content wrapping works */
+}
+/* Premium Checkbox Toggle */
+.checkbox-container {
+    position: relative;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    user-select: none;
+}
+.checkbox-container input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+.checkmark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 24px;
+    width: 24px;
+    background-color: transparent;
+    border: 2px solid var(--text-details);
+    border-radius: var(--radius-sm);
+    transition: all var(--transition-fast);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.checkbox-container:hover input ~ .checkmark {
+    border-color: #8b5cf6;
+    box-shadow: 0 0 8px rgba(139, 92, 246, 0.25);
+}
+.checkbox-container input:checked ~ .checkmark {
+    background: var(--accent-gradient);
+    border-color: transparent;
+    box-shadow: 0 2px 10px rgba(139, 92, 246, 0.4);
+}
+.checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+}
+.checkbox-container input:checked ~ .checkmark:after {
+    display: block;
+}
+.checkbox-container .checkmark:after {
+    left: 8px;
+    top: 4px;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2.5px 2.5px 0;
+    transform: rotate(45deg);
+    transition: all var(--transition-fast);
+}
+/* Content Text elements */
+.todo-details-container {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+.todo-title {
+    font-size: 0.95rem;
+    font-weight: 550;
+    color: var(--text-main);
+    word-break: break-word;
+    transition: all var(--transition-fast);
+}
+.todo-item.completed .todo-title {
+    color: var(--text-details);
+    text-decoration: line-through;
+}
+.todo-metadata {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+/* Badge System */
+.badge {
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    text-transform: capitalize;
+}
+/* Category Badges */
+.badge-category {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-muted);
+    border: 1px solid var(--card-border);
+}
+.badge-category::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: var(--radius-full);
+}
+.badge-personal::before { background-color: var(--personal-color); }
+.badge-work::before { background-color: var(--work-color); }
+.badge-study::before { background-color: var(--study-color); }
+.badge-fitness::before { background-color: var(--fitness-color); }
+.badge-other::before { background-color: var(--other-color); }
+/* Priority Badges */
+.badge-priority {
+    border-radius: var(--radius-sm);
+}
+.badge-priority-low {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--priority-low);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+.badge-priority-medium {
+    background: rgba(245, 158, 11, 0.1);
+    color: var(--priority-medium);
+    border: 1px solid rgba(245, 158, 11, 0.2);
+}
+.badge-priority-high {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--priority-high);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+/* Due Date Badge */
+.badge-due-date {
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--text-details);
+    border: 1px solid var(--card-border);
+}
+.badge-due-date.overdue {
+    background: rgba(239, 68, 68, 0.08);
+    color: var(--priority-high);
+    border-color: rgba(239, 68, 68, 0.15);
+}
+/* Action Controls (Right Panel) */
+.todo-item-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    opacity: 0.4;
+    transition: opacity var(--transition-fast);
+}
+.todo-item:hover .todo-item-actions {
+    opacity: 1;
+}
+.action-btn {
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--text-muted);
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 0.9rem;
+    transition: all var(--transition-fast);
+}
+.action-btn:hover {
+    background: var(--btn-secondary);
+    color: var(--text-main);
+    border-color: var(--card-border);
+}
+.action-btn-edit:hover {
+    color: #3b82f6;
+}
+.action-btn-delete:hover {
+    color: #ef4444;
+}
+/* ==========================================================================
+   Empty List State
+   ========================================================================== */
+.empty-state {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 50px 20px;
+    animation: fadeIn var(--transition-normal);
+}
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+.empty-icon {
+    font-size: 3rem;
+    background: var(--accent-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 15px;
+    opacity: 0.7;
+    filter: drop-shadow(0 4px 10px var(--accent-glow));
+}
+.empty-state h3 {
+    font-size: 1.15rem;
+    margin-bottom: 6px;
+    font-weight: 600;
+}
+.empty-state p {
+    font-size: 0.85rem;
+    color: var(--text-details);
+    max-width: 300px;
+    line-height: 1.5;
+}
+/* ==========================================================================
+   Footer Layout
+   ========================================================================== */
+.todo-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid var(--card-border);
+    padding-top: 25px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+.back-to-portfolio a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all var(--transition-fast);
+}
+.back-to-portfolio a:hover {
+    color: var(--text-main);
+    transform: translateX(-3px);
+}
+.clear-btn {
+    background: transparent;
+    border: 1px solid var(--card-border);
+    color: var(--text-muted);
+    padding: 8px 16px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all var(--transition-fast);
+}
+.clear-btn:hover {
+    background: rgba(239, 68, 68, 0.08);
+    color: #ef4444;
+    border-color: rgba(239, 68, 68, 0.2);
+}
+/* ==========================================================================
+   Toast Notifications System
+   ========================================================================== */
+.toast-container {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 200;
+    pointer-events: none;
+}
+.toast {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    color: var(--text-main);
+    padding: 14px 22px;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    pointer-events: auto;
+    animation: toastSlideIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+@keyframes toastSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+.toast.removing {
+    animation: toastSlideOut 0.3s cubic-bezier(0.6, -0.28, 0.735, 0.045) forwards;
+}
+@keyframes toastSlideOut {
+    to {
+        opacity: 0;
+        transform: translateY(15px) scale(0.9);
+    }
+}
+.toast-icon {
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+}
+.toast-success .toast-icon { color: #10b981; }
+.toast-info .toast-icon { color: #3b82f6; }
+.toast-danger .toast-icon { color: #ef4444; }
+.toast-message {
+    font-size: 0.85rem;
+    font-weight: 550;
+}
+/* ==========================================================================
+   Media Queries & Responsiveness
+   ========================================================================== */
+@media (max-width: 640px) {
+    body {
+        padding: 15px;
+    }
+    
+    .todo-card {
+        padding: 20px;
+        gap: 20px;
+    }
+    
+    .logo-text h1 {
+        font-size: 1.6rem;
+    }
+    
+    .logo-icon {
+        font-size: 1.8rem;
+    }
+    .form-meta-options {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    .filters-and-sort {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .filter-tabs {
+        width: 100%;
+    }
+    .filter-tab {
+        flex-grow: 1;
+        text-align: center;
+    }
+    .sort-selector {
+        justify-content: space-between;
+    }
+    .todo-item {
+        padding: 14px 16px;
+    }
+    .todo-item-actions {
+        opacity: 1; /* Keep buttons visible on touch screens */
+    }
+    .add-task-btn {
+        padding: 0 16px;
+    }
+    .btn-text-desktop {
+        display: none; /* Icon only on mobile screen widths */
+    }
+    .toast-container {
+        left: 20px;
+        right: 20px;
+        bottom: 20px;
+    }
+    .toast {
+        width: 100%;
+        justify-content: center;
+    }
+}
+/**
+ * TaskSpire — JavaScript Application Controller
+ * Features: LocalStorage, Dynamic Filtering & Sorting, Inline Task Editing,
+ * Toast Notifications, Live Metrics, and Canvas-based Confetti Burst.
+ */
+document.addEventListener('DOMContentLoaded', () => {
+    // --- Application State ---
+    let todos = JSON.parse(localStorage.getItem('taskspire_todos')) || [];
+    let currentFilter = 'all';
+    let currentSort = 'created';
+    let searchQuery = '';
+    // --- DOM Elements ---
+    const todoForm = document.getElementById('todo-form');
+    const taskInput = document.getElementById('task-input');
+    const taskPriority = document.getElementById('task-priority');
+    const taskCategory = document.getElementById('task-category');
+    const taskDate = document.getElementById('task-date');
+    const todoList = document.getElementById('todo-list');
+    const searchInput = document.getElementById('search-input');
+    const filterTabs = document.querySelectorAll('.filter-tab');
+    const sortTasks = document.getElementById('sort-tasks');
+    const clearCompletedBtn = document.getElementById('clear-completed-btn');
+    const emptyState = document.getElementById('empty-state');
+    const themeToggle = document.getElementById('theme-toggle');
+    const toastContainer = document.getElementById('toast-container');
+    // Metrics elements
+    const progressPercent = document.getElementById('progress-percent');
+    const progressFill = document.getElementById('progress-fill');
+    const tasksCompleted = document.getElementById('tasks-completed');
+    const tasksTotal = document.getElementById('tasks-total');
+    // Confetti canvas setup
+    const canvas = document.getElementById('confetti-canvas');
+    const ctx = canvas.getContext('2d');
+    let confettiParticles = [];
+    let confettiAnimationId = null;
+    // --- Date input initialization ---
+    // Set default minimum due date to today
+    const today = new Date().toISOString().split('T')[0];
+    taskDate.min = today;
+    // --- Theme System ---
+    const initTheme = () => {
+        const savedTheme = localStorage.getItem('taskspire_theme') || 'dark';
+        if (savedTheme === 'light') {
+            document.body.classList.remove('dark-mode');
+            document.body.classList.add('light-mode');
+        } else {
+            document.body.classList.remove('light-mode');
+            document.body.classList.add('dark-mode');
+        }
+    };
+    themeToggle.addEventListener('click', () => {
+        if (document.body.classList.contains('dark-mode')) {
+            document.body.classList.remove('dark-mode');
+            document.body.classList.add('light-mode');
+            localStorage.setItem('taskspire_theme', 'light');
+            showToast('Switched to Light Mode', 'info');
+        } else {
+            document.body.classList.remove('light-mode');
+            document.body.classList.add('dark-mode');
+            localStorage.setItem('taskspire_theme', 'dark');
+            showToast('Switched to Dark Mode', 'info');
+        }
+    });
+    // --- Storage Sync ---
+    const saveToStorage = () => {
+        localStorage.setItem('taskspire_todos', JSON.stringify(todos));
+    };
+    // --- Toast Notifications System ---
+    const showToast = (message, type = 'info') => {
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        
+        let iconClass = 'fa-info-circle';
+        if (type === 'success') iconClass = 'fa-circle-check';
+        if (type === 'danger') iconClass = 'fa-triangle-exclamation';
+        toast.innerHTML = `
+            <div class="toast-icon"><i class="fa-solid ${iconClass}"></i></div>
+            <div class="toast-message">${message}</div>
+        `;
+        
+        toastContainer.appendChild(toast);
+        
+        // Remove Toast after delay
+        setTimeout(() => {
+            toast.classList.add('removing');
+            toast.addEventListener('animationend', () => {
+                toast.remove();
+            });
+        }, 3000);
+    };
+    // --- Metrics & Progress Calculation ---
+    const updateMetrics = () => {
+        const total = todos.length;
+        const completed = todos.filter(t => t.completed).length;
+        const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
+        // Animate metrics labels
+        tasksCompleted.textContent = completed;
+        tasksTotal.textContent = total;
+        progressPercent.textContent = `${percent}%`;
+        progressFill.style.width = `${percent}%`;
+        // Check for 100% completion celebration
+        if (percent === 100 && total > 0 && !localStorage.getItem('celebrated_completion')) {
+            triggerConfetti();
+            showToast('All goals completed! Excellent work! 🎉', 'success');
+            // Prevent spamming celebration on edits, set session/flag
+            localStorage.setItem('celebrated_completion', 'true');
+        } else if (percent < 100) {
+            localStorage.removeItem('celebrated_completion');
+        }
+    };
+    // --- Canvas Confetti Celebration system ---
+    class Confetti {
+        constructor(x, y, speedX, speedY, color) {
+            this.x = x;
+            this.y = y;
+            this.size = Math.random() * 6 + 4;
+            this.speedX = speedX;
+            this.speedY = speedY;
+            this.color = color;
+            this.gravity = 0.35;
+            this.drag = 0.98;
+            this.opacity = 1;
+            this.angle = Math.random() * Math.PI * 2;
+            this.angleVelocity = Math.random() * 0.2 - 0.1;
+        }
+        update() {
+            this.speedX *= this.drag;
+            this.speedY += this.gravity;
+            this.x += this.x >= 0 ? this.speedX : -this.speedX;
+            this.y += this.speedY;
+            this.angle += this.angleVelocity;
+            this.opacity -= 0.012;
+        }
+        draw() {
+            ctx.save();
+            ctx.translate(this.x, this.y);
+            ctx.rotate(this.angle);
+            ctx.fillStyle = this.color;
+            ctx.globalAlpha = this.opacity;
+            ctx.fillRect(-this.size / 2, -this.size / 2, this.size, this.size);
+            ctx.restore();
+        }
+    }
+    const resizeCanvas = () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    };
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+    const animateConfetti = () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        confettiParticles = confettiParticles.filter(p => p.opacity > 0);
+        confettiParticles.forEach(p => {
+            p.update();
+            p.draw();
+        });
+        if (confettiParticles.length > 0) {
+            confettiAnimationId = requestAnimationFrame(animateConfetti);
+        } else {
+            cancelAnimationFrame(confettiAnimationId);
+            confettiAnimationId = null;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+    };
+    const triggerConfetti = () => {
+        // Emit from bottom left and bottom right corners
+        const colors = ['#8b5cf6', '#d946ef', '#ec4899', '#3b82f6', '#10b981', '#f59e0b'];
+        
+        // Left launch
+        for (let i = 0; i < 70; i++) {
+            const angle = -Math.PI / 4 + (Math.random() * 0.3 - 0.15); // angle up-right
+            const speed = Math.random() * 15 + 10;
+            const speedX = Math.cos(angle) * speed;
+            const speedY = Math.sin(angle) * speed;
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            confettiParticles.push(new Confetti(0, canvas.height, speedX, speedY, color));
+        }
+        // Right launch
+        for (let i = 0; i < 70; i++) {
+            const angle = -3 * Math.PI / 4 + (Math.random() * 0.3 - 0.15); // angle up-left
+            const speed = Math.random() * 15 + 10;
+            const speedX = Math.cos(angle) * speed;
+            const speedY = Math.sin(angle) * speed;
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            confettiParticles.push(new Confetti(canvas.width, canvas.height, speedX, speedY, color));
+        }
+        if (!confettiAnimationId) {
+            animateConfetti();
+        }
+    };
+    // --- Core CRUD Actions ---
+    
+    // Create Task
+    todoForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        const title = taskInput.value.trim();
+        if (!title) return;
+        const newTodo = {
+            id: Date.now().toString(),
+            title: title,
+            completed: false,
+            priority: taskPriority.value,
+            category: taskCategory.value,
+            dueDate: taskDate.value || null,
+            createdAt: new Date().toISOString()
+        };
+        todos.unshift(newTodo);
+        saveToStorage();
+        updateMetrics();
+        renderTodos();
+        
+        // Reset Inputs
+        taskInput.value = '';
+        taskPriority.value = 'medium';
+        taskCategory.value = 'personal';
+        taskDate.value = '';
+        showToast('Task added successfully!', 'success');
+    });
+    // Delete Task
+    const deleteTodo = (id) => {
+        const todoItem = document.querySelector(`[data-id="${id}"]`);
+        if (todoItem) {
+            todoItem.classList.add('deleting');
+            
+            // Wait for slide-out animation to complete
+            todoItem.addEventListener('animationend', () => {
+                todos = todos.filter(t => t.id !== id);
+                saveToStorage();
+                updateMetrics();
+                renderTodos();
+                showToast('Task deleted', 'danger');
+            });
+        }
+    };
+    // Toggle Task Complete Status
+    const toggleComplete = (id) => {
+        todos = todos.map(t => {
+            if (t.id === id) {
+                const updatedStatus = !t.completed;
+                if (updatedStatus) {
+                    showToast('Task completed! Double check that progress indicator.', 'success');
+                }
+                return { ...t, completed: updatedStatus };
+            }
+            return t;
+        });
+        saveToStorage();
+        updateMetrics();
+        renderTodos();
+    };
+    // Edit Task (Inline editing support)
+    const startEditTodo = (id, labelContainer) => {
+        const todo = todos.find(t => t.id === id);
+        if (!todo) return;
+        const originalText = todo.title;
+        labelContainer.innerHTML = `
+            <div class="edit-input-wrapper" style="display: flex; gap: 8px; width: 100%;">
+                <input type="text" class="edit-input" style="
+                    background: var(--input-bg);
+                    border: 1px solid var(--input-focus);
+                    color: var(--text-main);
+                    border-radius: var(--radius-sm);
+                    padding: 4px 8px;
+                    font-size: 0.95rem;
+                    font-weight: 550;
+                    width: 100%;
+                    outline: none;
+                " value="${originalText}">
+                <button class="save-edit-btn" style="
+                    background: var(--accent-gradient);
+                    border: none;
+                    color: white;
+                    border-radius: var(--radius-sm);
+                    padding: 4px 10px;
+                    font-size: 0.8rem;
+                    cursor: pointer;
+                    font-family: var(--font-header);
+                    font-weight: 600;
+                ">Save</button>
+                <button class="cancel-edit-btn" style="
+                    background: var(--btn-secondary);
+                    border: 1px solid var(--card-border);
+                    color: var(--text-muted);
+                    border-radius: var(--radius-sm);
+                    padding: 4px 10px;
+                    font-size: 0.8rem;
+                    cursor: pointer;
+                ">Cancel</button>
+            </div>
+        `;
+        const input = labelContainer.querySelector('.edit-input');
+        input.focus();
+        // Place cursor at the end of the text
+        input.setSelectionRange(input.value.length, input.value.length);
+        const saveBtn = labelContainer.querySelector('.save-edit-btn');
+        const cancelBtn = labelContainer.querySelector('.cancel-edit-btn');
+        const saveChanges = () => {
+            const newTitle = input.value.trim();
+            if (newTitle && newTitle !== originalText) {
+                todos = todos.map(t => t.id === id ? { ...t, title: newTitle } : t);
+                saveToStorage();
+                showToast('Task updated', 'success');
+            }
+            renderTodos();
+        };
+        // Listeners for save/cancel
+        saveBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            saveChanges();
+        });
+        cancelBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            renderTodos();
+        });
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                saveChanges();
+            }
+            if (e.key === 'Escape') {
+                renderTodos();
+            }
+        });
+    };
+    // --- Search, Filters & Sorting Logic ---
+    // Filter Switcher
+    filterTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            filterTabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            currentFilter = tab.dataset.filter;
+            renderTodos();
+        });
+    });
+    // Sorting Switcher
+    sortTasks.addEventListener('change', () => {
+        currentSort = sortTasks.value;
+        renderTodos();
+    });
+    // Search Input keyup
+    searchInput.addEventListener('input', (e) => {
+        searchQuery = e.target.value.toLowerCase().trim();
+        renderTodos();
+    });
+    // Clear Completed
+    clearCompletedBtn.addEventListener('click', () => {
+        const completedCount = todos.filter(t => t.completed).length;
+        if (completedCount === 0) {
+            showToast('No completed tasks to clear', 'info');
+            return;
+        }
+        todos = todos.filter(t => !t.completed);
+        saveToStorage();
+        updateMetrics();
+        renderTodos();
+        showToast(`Cleared ${completedCount} completed task(s)`, 'danger');
+    });
+    // --- Render Elements to DOM ---
+    const renderTodos = () => {
+        // 1. Filter Todos
+        let filtered = todos.filter(todo => {
+            // Status check
+            const matchesFilter = 
+                currentFilter === 'all' || 
+                (currentFilter === 'active' && !todo.completed) ||
+                (currentFilter === 'completed' && todo.completed);
+            // Search query check
+            const matchesSearch = todo.title.toLowerCase().includes(searchQuery);
+            return matchesFilter && matchesSearch;
+        });
+        // 2. Sort Todos
+        filtered.sort((a, b) => {
+            if (currentSort === 'priority') {
+                const priorityWeight = { high: 3, medium: 2, low: 1 };
+                return priorityWeight[b.priority] - priorityWeight[a.priority];
+            }
+            if (currentSort === 'dueDate') {
+                if (!a.dueDate) return 1;
+                if (!b.dueDate) return -1;
+                return new Date(a.dueDate) - new Date(b.dueDate);
+            }
+            // Default: 'created' (newest first)
+            return new Date(b.createdAt) - new Date(a.createdAt);
+        });
+        // 3. Render HTML
+        todoList.innerHTML = '';
+        
+        if (filtered.length === 0) {
+            emptyState.style.display = 'flex';
+        } else {
+            emptyState.style.display = 'none';
+            
+            filtered.forEach(todo => {
+                const li = document.createElement('li');
+                li.className = `todo-item ${todo.completed ? 'completed' : ''}`;
+                li.dataset.id = todo.id;
+                // Due date processing
+                let dateBadgeHTML = '';
+                if (todo.dueDate) {
+                    const formattedDate = new Date(todo.dueDate).toLocaleDateString(undefined, {
+                        month: 'short',
+                        day: 'numeric'
+                    });
+                    
+                    const isOverdue = !todo.completed && new Date(todo.dueDate + 'T23:59:59') < new Date();
+                    const overdueClass = isOverdue ? 'overdue' : '';
+                    const overdueIcon = isOverdue ? '<i class="fa-solid fa-triangle-exclamation"></i>' : '<i class="fa-regular fa-clock"></i>';
+                    
+                    dateBadgeHTML = `
+                        <span class="badge badge-due-date ${overdueClass}">
+                            ${overdueIcon} ${isOverdue ? 'Overdue: ' : ''}${formattedDate}
+                        </span>
+                    `;
+                }
+                li.innerHTML = `
+                    <div class="todo-item-left">
+                        <label class="checkbox-container">
+                            <input type="checkbox" ${todo.completed ? 'checked' : ''} class="todo-toggle">
+                            <span class="checkmark"></span>
+                        </label>
+                        <div class="todo-details-container">
+                            <span class="todo-title">${escapeHTML(todo.title)}</span>
+                            <div class="todo-metadata">
+                                <span class="badge badge-category badge-${todo.category}">${todo.category}</span>
+                                <span class="badge badge-priority badge-priority-${todo.priority}">${todo.priority} priority</span>
+                                ${dateBadgeHTML}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="todo-item-actions">
+                        <button class="action-btn action-btn-edit" aria-label="Edit Task">
+                            <i class="fa-regular fa-pen-to-square"></i>
+                        </button>
+                        <button class="action-btn action-btn-delete" aria-label="Delete Task">
+                            <i class="fa-regular fa-trash-can"></i>
+                        </button>
+                    </div>
+                `;
+                // Add list bindings
+                const toggle = li.querySelector('.todo-toggle');
+                toggle.addEventListener('change', () => toggleComplete(todo.id));
+                const editBtn = li.querySelector('.action-btn-edit');
+                const titleText = li.querySelector('.todo-title');
+                editBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    startEditTodo(todo.id, titleText);
+                });
+                const deleteBtn = li.querySelector('.action-btn-delete');
+                deleteBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    deleteTodo(todo.id);
+                });
+                todoList.appendChild(li);
+            });
+        }
+    };
+    // Helper: Escapes HTML strings to prevent XSS issues
+    const escapeHTML = (str) => {
+        return str
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    };
+    // --- Bootstrapping App ---
+    initTheme();
+    updateMetrics();
+    renderTodos();
+});
+UpdatingDOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskSpire — Premium Productivity Todo App</title>
+    <!-- Google Fonts: Outfit & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="dark-mode">
+    <!-- Background elements for visual depth -->
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+    <canvas id="confetti-canvas"></canvas>
+    <div class="app-container">
+        <main class="todo-card">
+            <!-- Header Section -->
+            <header class="app-header">
+                <div class="header-main">
+                    <div class="logo">
+                        <div class="logo-icon">
+                            <i class="fa-solid fa-square-check"></i>
+                        </div>
+                        <div class="logo-text">
+                            <h1>TaskSpire</h1>
+                            <p>Elevate your productivity</p>
+                        </div>
+                    </div>
+                    <button id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle Theme">
+                        <i class="fa-solid fa-moon moon-icon"></i>
+                        <i class="fa-solid fa-sun sun-icon"></i>
+                    </button>
+                </div>
+                <!-- Progress Tracker -->
+                <div class="progress-section">
+                    <div class="progress-info">
+                        <span class="progress-title">Your Progress</span>
+                        <span id="progress-percent" class="progress-percent">0%</span>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div id="progress-fill" class="progress-bar-fill" style="width: 0%"></div>
+                    </div>
+                    <div class="stats-counter">
+                        <span id="tasks-completed">0</span> of <span id="tasks-total">0</span> tasks completed
+                    </div>
+                </div>
+            </header>
+            <!-- Task Form Creator -->
+            <section class="task-form-section">
+                <form id="todo-form" class="todo-form">
+                    <div class="input-group">
+                        <div class="input-wrapper">
+                            <i class="fa-regular fa-circle-dot input-decor"></i>
+                            <input type="text" id="task-input" required autocomplete="off" placeholder="What is your next focus?">
+                        </div>
+                        <button type="submit" class="add-task-btn" aria-label="Add Task">
+                            <span class="btn-text-desktop">Add Goal</span>
+                            <i class="fa-solid fa-plus"></i>
+                        </button>
+                    </div>
+                    <!-- Meta Options -->
+                    <div class="form-meta-options">
+                        <!-- Priority Picker -->
+                        <div class="meta-item">
+                            <label for="task-priority"><i class="fa-solid fa-circle-exclamation"></i> Priority</label>
+                            <div class="custom-select-wrapper">
+                                <select id="task-priority">
+                                    <option value="low">Low</option>
+                                    <option value="medium" selected>Medium</option>
+                                    <option value="high">High</option>
+                                </select>
+                            </div>
+                        </div>
+                        <!-- Category Picker -->
+                        <div class="meta-item">
+                            <label for="task-category"><i class="fa-solid fa-tags"></i> Category</label>
+                            <div class="custom-select-wrapper">
+                                <select id="task-category">
+                                    <option value="personal" selected>Personal</option>
+                                    <option value="work">Work</option>
+                                    <option value="study">Study</option>
+                                    <option value="fitness">Fitness</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        <!-- Due Date Picker -->
+                        <div class="meta-item">
+                            <label for="task-date"><i class="fa-regular fa-calendar-days"></i> Due Date</label>
+                            <input type="date" id="task-date">
+                        </div>
+                    </div>
+                </form>
+            </section>
+            <!-- Task Controls Panel -->
+            <section class="controls-panel">
+                <!-- Search bar -->
+                <div class="search-wrapper">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <input type="text" id="search-input" placeholder="Search tasks...">
+                </div>
+                <!-- Filters & Sorting -->
+                <div class="filters-and-sort">
+                    <div class="filter-tabs">
+                        <button class="filter-tab active" data-filter="all">All</button>
+                        <button class="filter-tab" data-filter="active">Active</button>
+                        <button class="filter-tab" data-filter="completed">Completed</button>
+                    </div>
+                    <div class="sort-selector">
+                        <label for="sort-tasks"><i class="fa-solid fa-arrow-down-wide-narrow"></i> Sort</label>
+                        <select id="sort-tasks">
+                            <option value="created">Created</option>
+                            <option value="priority">Priority</option>
+                            <option value="dueDate">Due Date</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+            <!-- Todo Items List -->
+            <section class="todo-list-section">
+                <ul id="todo-list" class="todo-list">
+                    <!-- Tasks will be injected dynamically -->
+                </ul>
+                <!-- Empty State -->
+                <div id="empty-state" class="empty-state">
+                    <div class="empty-icon">
+                        <i class="fa-solid fa-clipboard-check"></i>
+                    </div>
+                    <h3>No tasks found</h3>
+                    <p>Add a new focus above or adjust your search filters to start executing your goals.</p>
+                </div>
+            </section>
+            <!-- Footer Controls -->
+            <footer class="todo-footer">
+                <div class="back-to-portfolio">
+                    <a href="../index.html"><i class="fa-solid fa-arrow-left-long"></i> Back to Portfolio</a>
+                </div>
+                <button id="clear-completed-btn" class="clear-btn">
+                    <i class="fa-solid fa-trash-can"></i> Clear Completed
+                </button>
+            </footer>
+        </main>
+    </div>
+    <!-- Toast Notifications Container -->
+    <div id="toast-container" class="toast-container"></div>
+    <script src="app.js"></script>
+</body>
+</html>
+/* ==========================================================================
+   TaskSpire CSS Styling System
+   ========================================================================== */
+:root {
+    /* Fonts */
+    --font-primary: 'Inter', sans-serif;
+    --font-header: 'Outfit', sans-serif;
+    /* Common Transitions */
+    --transition-fast: 0.2s ease;
+    --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    /* Shadow Palette */
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 8px 30px rgba(0, 0, 0, 0.12);
+    --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.2);
+    --shadow-glow: 0 0 20px rgba(139, 92, 246, 0.35);
+    /* Border Radius */
+    --radius-sm: 8px;
+    --radius-md: 14px;
+    --radius-lg: 24px;
+    --radius-full: 9999px;
+    /* Category HSL Colors (Light and Dark Harmonized) */
+    --personal-color: hsl(271, 91%, 65%);
+    --work-color: hsl(217, 91%, 60%);
+    --study-color: hsl(142, 71%, 45%);
+    --fitness-color: hsl(35, 92%, 55%);
+    --other-color: hsl(200, 15%, 55%);
+    /* Priority Colors */
+    --priority-low: hsl(150, 60%, 45%);
+    --priority-medium: hsl(38, 92%, 50%);
+    --priority-high: hsl(0, 84%, 60%);
+}
+/* --- Dark Mode Configuration (Default) --- */
+.dark-mode {
+    --bg-main: #0a0e1a;
+    --card-bg: rgba(16, 23, 42, 0.7);
+    --card-border: rgba(255, 255, 255, 0.08);
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --text-details: #64748b;
+    --input-bg: rgba(30, 41, 59, 0.6);
+    --input-border: rgba(255, 255, 255, 0.06);
+    --input-focus: rgba(139, 92, 246, 0.4);
+    --btn-secondary: rgba(51, 65, 85, 0.5);
+    --btn-secondary-hover: rgba(51, 65, 85, 0.8);
+    --list-item-bg: rgba(30, 41, 59, 0.4);
+    --list-item-hover: rgba(30, 41, 59, 0.7);
+    --scrollbar-track: #0f172a;
+    --scrollbar-thumb: #334155;
+    
+    /* Gradients */
+    --accent-gradient: linear-gradient(135deg, #8b5cf6 0%, #d946ef 50%, #ec4899 100%);
+    --accent-glow: rgba(139, 92, 246, 0.25);
+    --glow-1: rgba(139, 92, 246, 0.15);
+    --glow-2: rgba(236, 72, 153, 0.1);
+    
+    color-scheme: dark;
+}
+/* --- Light Mode Configuration --- */
+body.light-mode {
+    --bg-main: #f3f4f6;
+    --card-bg: rgba(255, 255, 255, 0.75);
+    --card-border: rgba(0, 0, 0, 0.06);
+    --text-main: #0f172a;
+    --text-muted: #475569;
+    --text-details: #64748b;
+    --input-bg: rgba(243, 244, 246, 0.8);
+    --input-border: rgba(0, 0, 0, 0.08);
+    --input-focus: rgba(99, 102, 241, 0.3);
+    --btn-secondary: rgba(229, 231, 235, 0.8);
+    --btn-secondary-hover: rgba(209, 213, 219, 0.9);
+    --list-item-bg: rgba(255, 255, 255, 0.9);
+    --list-item-hover: rgba(248, 250, 252, 1);
+    --scrollbar-track: #f1f5f9;
+    --scrollbar-thumb: #cbd5e1;
+    
+    /* Gradients */
+    --accent-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
+    --accent-glow: rgba(99, 102, 241, 0.15);
+    --glow-1: rgba(99, 102, 241, 0.08);
+    --glow-2: rgba(236, 72, 153, 0.05);
+    color-scheme: light;
+}
+/* ==========================================================================
+   Reset and Core Layout
+   ========================================================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+body {
+    font-family: var(--font-primary);
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    overflow-x: hidden;
+    padding: 20px;
+    transition: background-color var(--transition-slow), color var(--transition-slow);
+}
+/* Smooth custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+}
+::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: var(--radius-full);
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #475569;
+}
+/* Background Glowing Ambient Orbs */
+.bg-glow {
+    position: absolute;
+    border-radius: var(--radius-full);
+    filter: blur(120px);
+    z-index: -2;
+    pointer-events: none;
+    transition: all var(--transition-slow);
+}
+.bg-glow-1 {
+    width: 500px;
+    height: 500px;
+    background: var(--glow-1);
+    top: -100px;
+    left: -100px;
+}
+.bg-glow-2 {
+    width: 450px;
+    height: 450px;
+    background: var(--glow-2);
+    bottom: -100px;
+    right: -100px;
+}
+/* Canvas overlay for confetti animations */
+#confetti-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 100;
+}
+/* ==========================================================================
+   Container & Premium Card Layout
+   ========================================================================== */
+.app-container {
+    width: 100%;
+    max-width: 680px;
+    z-index: 1;
+    perspective: 1000px;
+    margin: 40px 0;
+}
+.todo-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    padding: 35px;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    transform: translateY(20px);
+    animation: cardEntrance 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes cardEntrance {
+    to {
+        transform: translateY(0);
+    }
+}
+/* ==========================================================================
+   App Header & Stats
+   ========================================================================== */
+.app-header {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+.header-main {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+.logo-icon {
+    font-size: 2.2rem;
+    background: var(--accent-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: flex;
+    align-items: center;
+    filter: drop-shadow(0 2px 8px var(--accent-glow));
+}
+.logo-text h1 {
+    font-family: var(--font-header);
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    line-height: 1.1;
+}
+.logo-text p {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 400;
+    margin-top: 2px;
+}
+.theme-toggle-btn {
+    background: var(--btn-secondary);
+    border: 1px solid var(--card-border);
+    color: var(--text-main);
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.2rem;
+    transition: all var(--transition-fast);
+}
+.theme-toggle-btn:hover {
+    background: var(--btn-secondary-hover);
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+.theme-toggle-btn:active {
+    transform: scale(0.95);
+}
+/* Sun/Moon Display Triggers */
+.dark-mode .sun-icon { display: none; }
+.dark-mode .moon-icon { display: block; }
+body.light-mode .sun-icon { display: block; }
+body.light-mode .moon-icon { display: none; }
+/* Progress Bar Tracker */
+.progress-section {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-md);
+    padding: 15px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.progress-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+.progress-title {
+    color: var(--text-muted);
+}
+.progress-percent {
+    background: var(--accent-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-family: var(--font-header);
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+.progress-bar-container {
+    width: 100%;
+    height: 8px;
+    background: var(--input-bg);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+    position: relative;
+}
+.progress-bar-fill {
+    height: 100%;
+    background: var(--accent-gradient);
+    border-radius: var(--radius-full);
+    transition: width var(--transition-slow);
+    box-shadow: var(--shadow-glow);
+}
+.stats-counter {
+    font-size: 0.8rem;
+    color: var(--text-details);
+    text-align: right;
+    font-weight: 500;
+}
+/* ==========================================================================
+   Task Input Form Creator
+   ========================================================================== */
+.task-form-section {
+    width: 100%;
+}
+.todo-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+.input-group {
+    display: flex;
+    gap: 12px;
+}
+.input-wrapper {
+    position: relative;
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+}
+.input-decor {
+    position: absolute;
+    left: 16px;
+    color: var(--text-details);
+    font-size: 1rem;
+    pointer-events: none;
+    transition: color var(--transition-fast);
+}
+#task-input {
+    width: 100%;
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    color: var(--text-main);
+    padding: 16px 16px 16px 45px;
+    border-radius: var(--radius-md);
+    font-family: var(--font-primary);
+    font-size: 1rem;
+    font-weight: 500;
+    transition: all var(--transition-fast);
+}
+#task-input::placeholder {
+    color: var(--text-details);
+    font-weight: 400;
+}
+#task-input:focus {
+    outline: none;
+    border-color: var(--input-focus);
+    box-shadow: 0 0 0 3px var(--input-focus);
+    background: var(--card-bg);
+}
+#task-input:focus + .input-decor {
+    color: #a855f7;
+}
+.add-task-btn {
+    background: var(--accent-gradient);
+    color: white;
+    border: none;
+    padding: 0 24px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-weight: 600;
+    font-family: var(--font-header);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all var(--transition-fast);
+    box-shadow: 0 4px 15px var(--accent-glow);
+}
+.add-task-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px var(--accent-glow);
+    filter: brightness(1.1);
+}
+.add-task-btn:active {
+    transform: translateY(0);
+}
+.add-task-btn i {
+    font-size: 1.1rem;
+}
+/* Meta Data Row: Priority, Category, Date */
+.form-meta-options {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    background: rgba(255, 255, 255, 0.01);
+    padding: 4px;
+}
+.meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.meta-item label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.meta-item label i {
+    color: var(--text-details);
+}
+.custom-select-wrapper select,
+.meta-item input[type="date"] {
+    width: 100%;
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    color: var(--text-main);
+    padding: 10px 12px;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-primary);
+    font-size: 0.85rem;
+    font-weight: 500;
+    outline: none;
+    transition: all var(--transition-fast);
+    cursor: pointer;
+}
+.custom-select-wrapper select:focus,
+.meta-item input[type="date"]:focus {
+    border-color: var(--input-focus);
+    box-shadow: 0 0 0 2px var(--input-focus);
+}
+/* Custom design calendar icon replacement */
+.meta-item input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(0.5);
+    cursor: pointer;
+}
+/* ==========================================================================
+   Filters & Search Controls Panel
+   ========================================================================== */
+.controls-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    border-top: 1px solid var(--card-border);
+    padding-top: 25px;
+}
+.search-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.search-icon {
+    position: absolute;
+    left: 16px;
+    color: var(--text-details);
+    pointer-events: none;
+}
+#search-input {
+    width: 100%;
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    color: var(--text-main);
+    padding: 12px 16px 12px 42px;
+    border-radius: var(--radius-md);
+    font-size: 0.9rem;
+    outline: none;
+    transition: all var(--transition-fast);
+}
+#search-input:focus {
+    border-color: var(--input-focus);
+    background: var(--card-bg);
+    box-shadow: 0 0 0 2px var(--input-focus);
+}
+.filters-and-sort {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+.filter-tabs {
+    display: flex;
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    padding: 4px;
+    border-radius: var(--radius-md);
+    gap: 2px;
+}
+.filter-tab {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    padding: 8px 16px;
+    border-radius: calc(var(--radius-md) - 4px);
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all var(--transition-fast);
+}
+.filter-tab:hover {
+    color: var(--text-main);
+}
+.filter-tab.active {
+    background: var(--card-bg);
+    color: var(--text-main);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+.sort-selector {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.sort-selector label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    white-space: nowrap;
+}
+.sort-selector select {
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    color: var(--text-main);
+    padding: 8px 14px;
+    border-radius: var(--radius-md);
+    font-size: 0.85rem;
+    font-weight: 500;
+    outline: none;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+.sort-selector select:focus {
+    border-color: var(--input-focus);
+}
+/* ==========================================================================
+   Todo List Area & Items
+   ========================================================================== */
+.todo-list-section {
+    min-height: 200px;
+    position: relative;
+}
+.todo-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 0;
+}
+.todo-item {
+    background: var(--list-item-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-md);
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    transition: all var(--transition-normal);
+    position: relative;
+    overflow: hidden;
+    animation: taskSlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes taskSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+.todo-item.deleting {
+    animation: taskSlideOut 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes taskSlideOut {
+    to {
+        opacity: 0;
+        transform: translateX(40px);
+        height: 0;
+        padding-top: 0;
+        padding-bottom: 0;
+        margin-bottom: -12px;
+        border: none;
+    }
+}
+.todo-item:hover {
+    background: var(--list-item-hover);
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: var(--shadow-sm);
+    transform: translateY(-1px);
+}
+/* Left Group (Checkbox + Texts) */
+.todo-item-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-grow: 1;
+    min-width: 0; /* Ensures content wrapping works */
+}
+/* Premium Checkbox Toggle */
+.checkbox-container {
+    position: relative;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    user-select: none;
+}
+.checkbox-container input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+.checkmark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 24px;
+    width: 24px;
+    background-color: transparent;
+    border: 2px solid var(--text-details);
+    border-radius: var(--radius-sm);
+    transition: all var(--transition-fast);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.checkbox-container:hover input ~ .checkmark {
+    border-color: #8b5cf6;
+    box-shadow: 0 0 8px rgba(139, 92, 246, 0.25);
+}
+.checkbox-container input:checked ~ .checkmark {
+    background: var(--accent-gradient);
+    border-color: transparent;
+    box-shadow: 0 2px 10px rgba(139, 92, 246, 0.4);
+}
+.checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+}
+.checkbox-container input:checked ~ .checkmark:after {
+    display: block;
+}
+.checkbox-container .checkmark:after {
+    left: 8px;
+    top: 4px;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2.5px 2.5px 0;
+    transform: rotate(45deg);
+    transition: all var(--transition-fast);
+}
+/* Content Text elements */
+.todo-details-container {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+.todo-title {
+    font-size: 0.95rem;
+    font-weight: 550;
+    color: var(--text-main);
+    word-break: break-word;
+    transition: all var(--transition-fast);
+}
+.todo-item.completed .todo-title {
+    color: var(--text-details);
+    text-decoration: line-through;
+}
+.todo-metadata {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+/* Badge System */
+.badge {
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    text-transform: capitalize;
+}
+/* Category Badges */
+.badge-category {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-muted);
+    border: 1px solid var(--card-border);
+}
+.badge-category::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: var(--radius-full);
+}
+.badge-personal::before { background-color: var(--personal-color); }
+.badge-work::before { background-color: var(--work-color); }
+.badge-study::before { background-color: var(--study-color); }
+.badge-fitness::before { background-color: var(--fitness-color); }
+.badge-other::before { background-color: var(--other-color); }
+/* Priority Badges */
+.badge-priority {
+    border-radius: var(--radius-sm);
+}
+.badge-priority-low {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--priority-low);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+.badge-priority-medium {
+    background: rgba(245, 158, 11, 0.1);
+    color: var(--priority-medium);
+    border: 1px solid rgba(245, 158, 11, 0.2);
+}
+.badge-priority-high {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--priority-high);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+/* Due Date Badge */
+.badge-due-date {
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--text-details);
+    border: 1px solid var(--card-border);
+}
+.badge-due-date.overdue {
+    background: rgba(239, 68, 68, 0.08);
+    color: var(--priority-high);
+    border-color: rgba(239, 68, 68, 0.15);
+}
+/* Action Controls (Right Panel) */
+.todo-item-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    opacity: 0.4;
+    transition: opacity var(--transition-fast);
+}
+.todo-item:hover .todo-item-actions {
+    opacity: 1;
+}
+.action-btn {
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--text-muted);
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 0.9rem;
+    transition: all var(--transition-fast);
+}
+.action-btn:hover {
+    background: var(--btn-secondary);
+    color: var(--text-main);
+    border-color: var(--card-border);
+}
+.action-btn-edit:hover {
+    color: #3b82f6;
+}
+.action-btn-delete:hover {
+    color: #ef4444;
+}
+/* ==========================================================================
+   Empty List State
+   ========================================================================== */
+.empty-state {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 50px 20px;
+    animation: fadeIn var(--transition-normal);
+}
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+.empty-icon {
+    font-size: 3rem;
+    background: var(--accent-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 15px;
+    opacity: 0.7;
+    filter: drop-shadow(0 4px 10px var(--accent-glow));
+}
+.empty-state h3 {
+    font-size: 1.15rem;
+    margin-bottom: 6px;
+    font-weight: 600;
+}
+.empty-state p {
+    font-size: 0.85rem;
+    color: var(--text-details);
+    max-width: 300px;
+    line-height: 1.5;
+}
+/* ==========================================================================
+   Footer Layout
+   ========================================================================== */
+.todo-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid var(--card-border);
+    padding-top: 25px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+.back-to-portfolio a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all var(--transition-fast);
+}
+.back-to-portfolio a:hover {
+    color: var(--text-main);
+    transform: translateX(-3px);
+}
+.clear-btn {
+    background: transparent;
+    border: 1px solid var(--card-border);
+    color: var(--text-muted);
+    padding: 8px 16px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all var(--transition-fast);
+}
+.clear-btn:hover {
+    background: rgba(239, 68, 68, 0.08);
+    color: #ef4444;
+    border-color: rgba(239, 68, 68, 0.2);
+}
+/* ==========================================================================
+   Toast Notifications System
+   ========================================================================== */
+.toast-container {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 200;
+    pointer-events: none;
+}
+.toast {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    color: var(--text-main);
+    padding: 14px 22px;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    pointer-events: auto;
+    animation: toastSlideIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+@keyframes toastSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+.toast.removing {
+    animation: toastSlideOut 0.3s cubic-bezier(0.6, -0.28, 0.735, 0.045) forwards;
+}
+@keyframes toastSlideOut {
+    to {
+        opacity: 0;
+        transform: translateY(15px) scale(0.9);
+    }
+}
+.toast-icon {
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+}
+.toast-success .toast-icon { color: #10b981; }
+.toast-info .toast-icon { color: #3b82f6; }
+.toast-danger .toast-icon { color: #ef4444; }
+.toast-message {
+    font-size: 0.85rem;
+    font-weight: 550;
+}
+/* ==========================================================================
+   Media Queries & Responsiveness
+   ========================================================================== */
+@media (max-width: 640px) {
+    body {
+        padding: 15px;
+    }
+    
+    .todo-card {
+        padding: 20px;
+        gap: 20px;
+    }
+    
+    .logo-text h1 {
+        font-size: 1.6rem;
+    }
+    
+    .logo-icon {
+        font-size: 1.8rem;
+    }
+    .form-meta-options {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    .filters-and-sort {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .filter-tabs {
+        width: 100%;
+    }
+    .filter-tab {
+        flex-grow: 1;
+        text-align: center;
+    }
+    .sort-selector {
+        justify-content: space-between;
+    }
+    .todo-item {
+        padding: 14px 16px;
+    }
+    .todo-item-actions {
+        opacity: 1; /* Keep buttons visible on touch screens */
+    }
+    .add-task-btn {
+        padding: 0 16px;
+    }
+    .btn-text-desktop {
+        display: none; /* Icon only on mobile screen widths */
+    }
+    .toast-container {
+        left: 20px;
+        right: 20px;
+        bottom: 20px;
+    }
+    .toast {
+        width: 100%;
+        justify-content: center;
+    }
+}
+/**
+ * TaskSpire — JavaScript Application Controller
+ * Features: LocalStorage, Dynamic Filtering & Sorting, Inline Task Editing,
+ * Toast Notifications, Live Metrics, and Canvas-based Confetti Burst.
+ */
+document.addEventListener('DOMContentLoaded', () => {
+    // --- Application State ---
+    let todos = JSON.parse(localStorage.getItem('taskspire_todos')) || [];
+    let currentFilter = 'all';
+    let currentSort = 'created';
+    let searchQuery = '';
+    // --- DOM Elements ---
+    const todoForm = document.getElementById('todo-form');
+    const taskInput = document.getElementById('task-input');
+    const taskPriority = document.getElementById('task-priority');
+    const taskCategory = document.getElementById('task-category');
+    const taskDate = document.getElementById('task-date');
+    const todoList = document.getElementById('todo-list');
+    const searchInput = document.getElementById('search-input');
+    const filterTabs = document.querySelectorAll('.filter-tab');
+    const sortTasks = document.getElementById('sort-tasks');
+    const clearCompletedBtn = document.getElementById('clear-completed-btn');
+    const emptyState = document.getElementById('empty-state');
+    const themeToggle = document.getElementById('theme-toggle');
+    const toastContainer = document.getElementById('toast-container');
+    // Metrics elements
+    const progressPercent = document.getElementById('progress-percent');
+    const progressFill = document.getElementById('progress-fill');
+    const tasksCompleted = document.getElementById('tasks-completed');
+    const tasksTotal = document.getElementById('tasks-total');
+    // Confetti canvas setup
+    const canvas = document.getElementById('confetti-canvas');
+    const ctx = canvas.getContext('2d');
+    let confettiParticles = [];
+    let confettiAnimationId = null;
+    // --- Date input initialization ---
+    // Set default minimum due date to today
+    const today = new Date().toISOString().split('T')[0];
+    taskDate.min = today;
+    // --- Theme System ---
+    const initTheme = () => {
+        const savedTheme = localStorage.getItem('taskspire_theme') || 'dark';
+        if (savedTheme === 'light') {
+            document.body.classList.remove('dark-mode');
+            document.body.classList.add('light-mode');
+        } else {
+            document.body.classList.remove('light-mode');
+            document.body.classList.add('dark-mode');
+        }
+    };
+    themeToggle.addEventListener('click', () => {
+        if (document.body.classList.contains('dark-mode')) {
+            document.body.classList.remove('dark-mode');
+            document.body.classList.add('light-mode');
+            localStorage.setItem('taskspire_theme', 'light');
+            showToast('Switched to Light Mode', 'info');
+        } else {
+            document.body.classList.remove('light-mode');
+            document.body.classList.add('dark-mode');
+            localStorage.setItem('taskspire_theme', 'dark');
+            showToast('Switched to Dark Mode', 'info');
+        }
+    });
+    // --- Storage Sync ---
+    const saveToStorage = () => {
+        localStorage.setItem('taskspire_todos', JSON.stringify(todos));
+    };
+    // --- Toast Notifications System ---
+    const showToast = (message, type = 'info') => {
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        
+        let iconClass = 'fa-info-circle';
+        if (type === 'success') iconClass = 'fa-circle-check';
+        if (type === 'danger') iconClass = 'fa-triangle-exclamation';
+        toast.innerHTML = `
+            <div class="toast-icon"><i class="fa-solid ${iconClass}"></i></div>
+            <div class="toast-message">${message}</div>
+        `;
+        
+        toastContainer.appendChild(toast);
+        
+        // Remove Toast after delay
+        setTimeout(() => {
+            toast.classList.add('removing');
+            toast.addEventListener('animationend', () => {
+                toast.remove();
+            });
+        }, 3000);
+    };
+    // --- Metrics & Progress Calculation ---
+    const updateMetrics = () => {
+        const total = todos.length;
+        const completed = todos.filter(t => t.completed).length;
+        const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
+        // Animate metrics labels
+        tasksCompleted.textContent = completed;
+        tasksTotal.textContent = total;
+        progressPercent.textContent = `${percent}%`;
+        progressFill.style.width = `${percent}%`;
+        // Check for 100% completion celebration
+        if (percent === 100 && total > 0 && !localStorage.getItem('celebrated_completion')) {
+            triggerConfetti();
+            showToast('All goals completed! Excellent work! 🎉', 'success');
+            // Prevent spamming celebration on edits, set session/flag
+            localStorage.setItem('celebrated_completion', 'true');
+        } else if (percent < 100) {
+            localStorage.removeItem('celebrated_completion');
+        }
+    };
+    // --- Canvas Confetti Celebration system ---
+    class Confetti {
+        constructor(x, y, speedX, speedY, color) {
+            this.x = x;
+            this.y = y;
+            this.size = Math.random() * 6 + 4;
+            this.speedX = speedX;
+            this.speedY = speedY;
+            this.color = color;
+            this.gravity = 0.35;
+            this.drag = 0.98;
+            this.opacity = 1;
+            this.angle = Math.random() * Math.PI * 2;
+            this.angleVelocity = Math.random() * 0.2 - 0.1;
+        }
+        update() {
+            this.speedX *= this.drag;
+            this.speedY += this.gravity;
+            this.x += this.x >= 0 ? this.speedX : -this.speedX;
+            this.y += this.speedY;
+            this.angle += this.angleVelocity;
+            this.opacity -= 0.012;
+        }
+        draw() {
+            ctx.save();
+            ctx.translate(this.x, this.y);
+            ctx.rotate(this.angle);
+            ctx.fillStyle = this.color;
+            ctx.globalAlpha = this.opacity;
+            ctx.fillRect(-this.size / 2, -this.size / 2, this.size, this.size);
+            ctx.restore();
+        }
+    }
+    const resizeCanvas = () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    };
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+    const animateConfetti = () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        confettiParticles = confettiParticles.filter(p => p.opacity > 0);
+        confettiParticles.forEach(p => {
+            p.update();
+            p.draw();
+        });
+        if (confettiParticles.length > 0) {
+            confettiAnimationId = requestAnimationFrame(animateConfetti);
+        } else {
+            cancelAnimationFrame(confettiAnimationId);
+            confettiAnimationId = null;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+    };
+    const triggerConfetti = () => {
+        // Emit from bottom left and bottom right corners
+        const colors = ['#8b5cf6', '#d946ef', '#ec4899', '#3b82f6', '#10b981', '#f59e0b'];
+        
+        // Left launch
+        for (let i = 0; i < 70; i++) {
+            const angle = -Math.PI / 4 + (Math.random() * 0.3 - 0.15); // angle up-right
+            const speed = Math.random() * 15 + 10;
+            const speedX = Math.cos(angle) * speed;
+            const speedY = Math.sin(angle) * speed;
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            confettiParticles.push(new Confetti(0, canvas.height, speedX, speedY, color));
+        }
+        // Right launch
+        for (let i = 0; i < 70; i++) {
+            const angle = -3 * Math.PI / 4 + (Math.random() * 0.3 - 0.15); // angle up-left
+            const speed = Math.random() * 15 + 10;
+            const speedX = Math.cos(angle) * speed;
+            const speedY = Math.sin(angle) * speed;
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            confettiParticles.push(new Confetti(canvas.width, canvas.height, speedX, speedY, color));
+        }
+        if (!confettiAnimationId) {
+            animateConfetti();
+        }
+    };
+    // --- Core CRUD Actions ---
+    
+    // Create Task
+    todoForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        const title = taskInput.value.trim();
+        if (!title) return;
+        const newTodo = {
+            id: Date.now().toString(),
+            title: title,
+            completed: false,
+            priority: taskPriority.value,
+            category: taskCategory.value,
+            dueDate: taskDate.value || null,
+            createdAt: new Date().toISOString()
+        };
+        todos.unshift(newTodo);
+        saveToStorage();
+        updateMetrics();
+        renderTodos();
+        
+        // Reset Inputs
+        taskInput.value = '';
+        taskPriority.value = 'medium';
+        taskCategory.value = 'personal';
+        taskDate.value = '';
+        showToast('Task added successfully!', 'success');
+    });
+    // Delete Task
+    const deleteTodo = (id) => {
+        const todoItem = document.querySelector(`[data-id="${id}"]`);
+        if (todoItem) {
+            todoItem.classList.add('deleting');
+            
+            // Wait for slide-out animation to complete
+            todoItem.addEventListener('animationend', () => {
+                todos = todos.filter(t => t.id !== id);
+                saveToStorage();
+                updateMetrics();
+                renderTodos();
+                showToast('Task deleted', 'danger');
+            });
+        }
+    };
+    // Toggle Task Complete Status
+    const toggleComplete = (id) => {
+        todos = todos.map(t => {
+            if (t.id === id) {
+                const updatedStatus = !t.completed;
+                if (updatedStatus) {
+                    showToast('Task completed! Double check that progress indicator.', 'success');
+                }
+                return { ...t, completed: updatedStatus };
+            }
+            return t;
+        });
+        saveToStorage();
+        updateMetrics();
+        renderTodos();
+    };
+    // Edit Task (Inline editing support)
+    const startEditTodo = (id, labelContainer) => {
+        const todo = todos.find(t => t.id === id);
+        if (!todo) return;
+        const originalText = todo.title;
+        labelContainer.innerHTML = `
+            <div class="edit-input-wrapper" style="display: flex; gap: 8px; width: 100%;">
+                <input type="text" class="edit-input" style="
+                    background: var(--input-bg);
+                    border: 1px solid var(--input-focus);
+                    color: var(--text-main);
+                    border-radius: var(--radius-sm);
+                    padding: 4px 8px;
+                    font-size: 0.95rem;
+                    font-weight: 550;
+                    width: 100%;
+                    outline: none;
+                " value="${originalText}">
+                <button class="save-edit-btn" style="
+                    background: var(--accent-gradient);
+                    border: none;
+                    color: white;
+                    border-radius: var(--radius-sm);
+                    padding: 4px 10px;
+                    font-size: 0.8rem;
+                    cursor: pointer;
+                    font-family: var(--font-header);
+                    font-weight: 600;
+                ">Save</button>
+                <button class="cancel-edit-btn" style="
+                    background: var(--btn-secondary);
+                    border: 1px solid var(--card-border);
+                    color: var(--text-muted);
+                    border-radius: var(--radius-sm);
+                    padding: 4px 10px;
+                    font-size: 0.8rem;
+                    cursor: pointer;
+                ">Cancel</button>
+            </div>
+        `;
+        const input = labelContainer.querySelector('.edit-input');
+        input.focus();
+        // Place cursor at the end of the text
+        input.setSelectionRange(input.value.length, input.value.length);
+        const saveBtn = labelContainer.querySelector('.save-edit-btn');
+        const cancelBtn = labelContainer.querySelector('.cancel-edit-btn');
+        const saveChanges = () => {
+            const newTitle = input.value.trim();
+            if (newTitle && newTitle !== originalText) {
+                todos = todos.map(t => t.id === id ? { ...t, title: newTitle } : t);
+                saveToStorage();
+                showToast('Task updated', 'success');
+            }
+            renderTodos();
+        };
+        // Listeners for save/cancel
+        saveBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            saveChanges();
+        });
+        cancelBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            renderTodos();
+        });
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                saveChanges();
+            }
+            if (e.key === 'Escape') {
+                renderTodos();
+            }
+        });
+    };
+    // --- Search, Filters & Sorting Logic ---
+    // Filter Switcher
+    filterTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            filterTabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            currentFilter = tab.dataset.filter;
+            renderTodos();
+        });
+    });
+    // Sorting Switcher
+    sortTasks.addEventListener('change', () => {
+        currentSort = sortTasks.value;
+        renderTodos();
+    });
+    // Search Input keyup
+    searchInput.addEventListener('input', (e) => {
+        searchQuery = e.target.value.toLowerCase().trim();
+        renderTodos();
+    });
+    // Clear Completed
+    clearCompletedBtn.addEventListener('click', () => {
+        const completedCount = todos.filter(t => t.completed).length;
+        if (completedCount === 0) {
+            showToast('No completed tasks to clear', 'info');
+            return;
+        }
+        todos = todos.filter(t => !t.completed);
+        saveToStorage();
+        updateMetrics();
+        renderTodos();
+        showToast(`Cleared ${completedCount} completed task(s)`, 'danger');
+    });
+    // --- Render Elements to DOM ---
+    const renderTodos = () => {
+        // 1. Filter Todos
+        let filtered = todos.filter(todo => {
+            // Status check
+            const matchesFilter = 
+                currentFilter === 'all' || 
+                (currentFilter === 'active' && !todo.completed) ||
+                (currentFilter === 'completed' && todo.completed);
+            // Search query check
+            const matchesSearch = todo.title.toLowerCase().includes(searchQuery);
+            return matchesFilter && matchesSearch;
+        });
+        // 2. Sort Todos
+        filtered.sort((a, b) => {
+            if (currentSort === 'priority') {
+                const priorityWeight = { high: 3, medium: 2, low: 1 };
+                return priorityWeight[b.priority] - priorityWeight[a.priority];
+            }
+            if (currentSort === 'dueDate') {
+                if (!a.dueDate) return 1;
+                if (!b.dueDate) return -1;
+                return new Date(a.dueDate) - new Date(b.dueDate);
+            }
+            // Default: 'created' (newest first)
+            return new Date(b.createdAt) - new Date(a.createdAt);
+        });
+        // 3. Render HTML
+        todoList.innerHTML = '';
+        
+        if (filtered.length === 0) {
+            emptyState.style.display = 'flex';
+        } else {
+            emptyState.style.display = 'none';
+            
+            filtered.forEach(todo => {
+                const li = document.createElement('li');
+                li.className = `todo-item ${todo.completed ? 'completed' : ''}`;
+                li.dataset.id = todo.id;
+                // Due date processing
+                let dateBadgeHTML = '';
+                if (todo.dueDate) {
+                    const formattedDate = new Date(todo.dueDate).toLocaleDateString(undefined, {
+                        month: 'short',
+                        day: 'numeric'
+                    });
+                    
+                    const isOverdue = !todo.completed && new Date(todo.dueDate + 'T23:59:59') < new Date();
+                    const overdueClass = isOverdue ? 'overdue' : '';
+                    const overdueIcon = isOverdue ? '<i class="fa-solid fa-triangle-exclamation"></i>' : '<i class="fa-regular fa-clock"></i>';
+                    
+                    dateBadgeHTML = `
+                        <span class="badge badge-due-date ${overdueClass}">
+                            ${overdueIcon} ${isOverdue ? 'Overdue: ' : ''}${formattedDate}
+                        </span>
+                    `;
+                }
+                li.innerHTML = `
+                    <div class="todo-item-left">
+                        <label class="checkbox-container">
+                            <input type="checkbox" ${todo.completed ? 'checked' : ''} class="todo-toggle">
+                            <span class="checkmark"></span>
+                        </label>
+                        <div class="todo-details-container">
+                            <span class="todo-title">${escapeHTML(todo.title)}</span>
+                            <div class="todo-metadata">
+                                <span class="badge badge-category badge-${todo.category}">${todo.category}</span>
+                                <span class="badge badge-priority badge-priority-${todo.priority}">${todo.priority} priority</span>
+                                ${dateBadgeHTML}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="todo-item-actions">
+                        <button class="action-btn action-btn-edit" aria-label="Edit Task">
+                            <i class="fa-regular fa-pen-to-square"></i>
+                        </button>
+                        <button class="action-btn action-btn-delete" aria-label="Delete Task">
+                            <i class="fa-regular fa-trash-can"></i>
+                        </button>
+                    </div>
+                `;
+                // Add list bindings
+                const toggle = li.querySelector('.todo-toggle');
+                toggle.addEventListener('change', () => toggleComplete(todo.id));
+                const editBtn = li.querySelector('.action-btn-edit');
+                const titleText = li.querySelector('.todo-title');
+                editBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    startEditTodo(todo.id, titleText);
+                });
+                const deleteBtn = li.querySelector('.action-btn-delete');
+                deleteBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    deleteTodo(todo.id);
+                });
+                todoList.appendChild(li);
+            });
+        }
+    };
+    // Helper: Escapes HTML strings to prevent XSS issues
+    const escapeHTML = (str) => {
+        return str
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;k')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    };
+    // --- Bootstrapping App ---
+    initTheme();
+    updateMetrics();
+    renderTodos();
+});
+Updating

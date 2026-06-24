@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amazon Lite</title>
+</head>
+<body>
+
+    <h1>Amazon Lite</h1>
+
+    <label>Enter product price</label>
+    <input type="number" id="price">
+    <br><br>
+
+    <label>Enter product quantity</label>
+    <input type="number" id="qn">
+    <br><br>
+
+    <button onclick="getbill()">Calculate Bill</button>
+    <br><br>
+
+    <button onclick="getdiscount()">Apply Discount</button>
+    <br></br>
+    
+
+
+    <h2 id="result"></h2>
+
+    <script>
+        var price = document.getElementById("price");
+        var qn = document.getElementById("qn");
+        var result = document.getElementById("result");
+
+        let totalbill = 0;
+
+        function getbill() {
+            totalbill = Number(price.value) * Number(qn.value);
+            result.innerHTML = "Total Bill: ₹" + totalbill;
+
+        }
+         
+
+
+        
+
+        function getdiscount() {
+            let discount = 0;
+
+            
+            if (totalbill > 3000) {
+                discount = totalbill * 0.30;  
+            }
+            else if (totalbill > 2000) {
+                discount = totalbill * 0.20;  
+            }
+            else if (totalbill > 1000) {
+                discount = totalbill * 0.10; 
+            }
+            else {
+                discount = 0;
+            }
+
+            let final = totalbill - discount;
+
+            result.innerHTML =
+                "Total Bill: ₹" + totalbill + "<br>" +
+                "Discount: ₹" + discount + "<br>" +
+                "Final Bill: ₹" + final;
+        }
+    </script>
+
+</body>
+</html>
